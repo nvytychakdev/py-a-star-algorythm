@@ -1,7 +1,9 @@
 import tkinter as tk
 
 class Cell:
-  def __init__(self, size):
+  def __init__(self, x, y, size):
+    self.x = x
+    self.y = y
     self.size = size
 
 
@@ -17,8 +19,8 @@ class Grid:
 
     self.cell_size = cell_size
 
-    self.row_length = width / cell_size
-    self.col_length = height / cell_size
+    self.row_length = int(width / cell_size)
+    self.col_length = int(height / cell_size)
 
     self.grid = self._generate_grid(
         self.row_length, self.col_length, self.cell_size)
@@ -26,10 +28,12 @@ class Grid:
   def _generate_grid(self, row_length, col_length, cell_size):
     if row_length > 0 and col_length > 0:
       grid = []
-      for i in range(0, int(col_length)):
+      for i in range(col_length + 1):
         grid.append([])
-        for j in range(0, int(row_length)):
-          grid[i] = Cell(cell_size)
+        y_pos = i * self.cell_size
+        for j in range(row_length + 1):
+          x_pos = j * self.cell_size
+          grid[i].append(Cell(x_pos, y_pos, cell_size))
       return grid
     return []
 
@@ -52,19 +56,18 @@ class GridWindow():
 
     return None
 
-  def _draw_grid(self):
+  def _draw_grid(self, canvas):
     if self._window:
       grid_builder = Grid(self.width, self.height, 100)
       grid = grid_builder.grid
-      for i in range(len(grid)):
-        for j in range(len(grid[i])):
-          grid_cell = grid[i][j]
-          cell_size = grid_cell.size
-          print(cell_size)
+      for row in grid:
+        for cell in row:
+          canvas.create_rectangle(cell.x, cell.y, cell.size, cell.size)
+          print(cell.x, cell.y, cell.size)
 
   def open(self):
     canvas = self._add_canvas()
-    self._draw_grid()
+    self._draw_grid(canvas)
 
     # mainloop will prevent from code execution further
     self._window.mainloop()
