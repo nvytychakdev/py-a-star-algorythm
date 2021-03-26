@@ -1,10 +1,11 @@
 import tkinter as tk
 
 class Cell:
-  def __init__(self, x, y, size):
-    self.x = x
-    self.y = y
-    self.size = size
+  def __init__(self, x1, y1, x2, y2):
+    self.x1 = x1
+    self.y1 = y1
+    self.x2 = x2
+    self.y2 = y2
 
 
 class Grid:
@@ -23,17 +24,19 @@ class Grid:
     self.col_length = int(height / cell_size)
 
     self.grid = self._generate_grid(
-        self.row_length, self.col_length, self.cell_size)
+        self.row_length, self.col_length, self.cell_size, 2)
 
-  def _generate_grid(self, row_length, col_length, cell_size):
+  def _generate_grid(self, row_length, col_length, size, padding=0):
     if row_length > 0 and col_length > 0:
       grid = []
-      for i in range(col_length + 1):
+      for i in range(col_length):
         grid.append([])
-        y_pos = i * self.cell_size
-        for j in range(row_length + 1):
-          x_pos = j * self.cell_size
-          grid[i].append(Cell(x_pos, y_pos, cell_size))
+        y1 = i * size + padding
+        y2 = y1 + size - padding
+        for j in range(row_length):
+          x1 = j * size + padding
+          x2 = x1 + size - padding
+          grid[i].append(Cell(x1, y1, x2, y2))
       return grid
     return []
 
@@ -62,12 +65,20 @@ class GridWindow():
       grid = grid_builder.grid
       for row in grid:
         for cell in row:
-          canvas.create_rectangle(cell.x, cell.y, cell.size, cell.size)
-          print(cell.x, cell.y, cell.size)
+          canvas.create_rectangle(cell.x1, cell.y1, cell.x2, cell.y2, activefill='#ddd', tag=f'')
+          print('cell:' , f'x:{cell.x1} ; y:{cell.y1};', cell.x2, cell.y2)
+
+  def _bind_events(self, canvas):
+    canvas.bind('<Motion>', self.on_mouseover)
+
+  def on_mouseover(self, event):
+    # TODO: search for event target by tag
+    return
 
   def open(self):
     canvas = self._add_canvas()
     self._draw_grid(canvas)
+    self._bind_events(canvas)
 
     # mainloop will prevent from code execution further
     self._window.mainloop()
